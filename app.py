@@ -46,7 +46,7 @@ with st.expander("🎯 Target Variable & Features", expanded=True):
 # Section: Model Evaluation
 num_data_points = len(df)
 with st.expander("📈 Model Evaluation", expanded=True):
-    st.header(f'Model Evaluation')
+    st.header(f'Model Evaluation: Elastic Net Regression')
     mse = mean_squared_error(y, y_pred)
     r2 = r2_score(y, y_pred)
     st.markdown(f'### Number of Surveys: {num_data_points}')
@@ -54,7 +54,7 @@ with st.expander("📈 Model Evaluation", expanded=True):
     st.markdown(f'### R²: {r2 * 100:.2f}% Variation in Overall Evaluation Can Be Explained')
 
 # Model Equation 
-with st.expander("Model Equation: Elastic Net Regression", expanded=True):
+with st.expander("Model Equation", expanded=True):
     st.header('Model Equation')
     coefficients = model.coef_
     intercept = model.intercept_
