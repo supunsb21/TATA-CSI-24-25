@@ -51,7 +51,7 @@ with st.expander("Model Equation", expanded=True):
 
     # Build LaTeX equation string with colors
     equation_latex = f"y = \\textcolor{{white}}{{{intercept:.2f}}}"
-    variable_names = [("y", "Target Variable")]
+    variable_names = [("y", "Overall Evaluation")]
 
     for i, coef in enumerate(coefficients):
         sign = "+" if coef >= 0 else "-"
@@ -63,11 +63,6 @@ with st.expander("Model Equation", expanded=True):
 
     # Display colored LaTeX equation
     st.latex(equation_latex)
-
-    # Display table mapping variable names to feature names
-    st.subheader("Variable Mapping")
-    mapping_df = pd.DataFrame(variable_names, columns=["Variable", "Feature Name"])
-    st.table(mapping_df)
 
     # Display table mapping variable names to feature names
     st.subheader("Variable Mapping")
