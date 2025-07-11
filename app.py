@@ -31,7 +31,12 @@ model = joblib.load('ElasticNet_new.joblib')
 # Predict with the model
 y_pred = model.predict(X)
 
-st.header('TATA Commercial CSI 2024/2025')
+st.markdown(
+    """
+    <h2 style='text-align: center;'>TATA Commercial CSI 2024/2025</h2>
+    """,
+    unsafe_allow_html=True
+)
 
 # Section: Dataset Preview
 with st.expander("📋 Preview Dataset", expanded=False):
