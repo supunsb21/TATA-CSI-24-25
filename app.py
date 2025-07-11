@@ -59,17 +59,25 @@ with st.expander("Model Equation", expanded=True):
     coefficients = model.coef_
     intercept = model.intercept_
 
-    # Create the equation string with colored text for coefficients and feature names
-    equation_html = f'<p><strong>{target} = <span style="color: #FFFFFF;">{intercept:.2f}</span></strong>'
+    # Build LaTeX equation string with subscripted variables
+    equation_latex = f"y = {intercept:.2f}"
+    variable_names = [("y", "Target Variable")]
 
     for i, coef in enumerate(coefficients):
-        coef_color = "#1E90FF" if coef >= 0 else "#FF4500"  # Blue for positive, red for negative coefficients
-        equation_html += f' <span style="color: {coef_color};">{"+" if coef >= 0 else "-"} {abs(coef):.2f}</span> * <span style="color: #32CD32;">{features[i]}</span>'
+        sign = "+" if coef >= 0 else "-"
+        variable_name = f"X_{i+1}"  # Subscript format for LaTeX
+        display_name = f"X{i+1}"    # Plain format for table
+        variable_names.append((display_name, features[i]))
+        equation_latex += f" {sign} {abs(coef):.2f} {variable_name}"
 
-    equation_html += '</p>'
+    # Display LaTeX equation
+    st.latex(equation_latex)
 
-    # Display the equation using HTML for better clarity and color formatting
-    st.markdown(equation_html, unsafe_allow_html=True)
+    # Display table mapping variable names to feature names
+    st.subheader("Variable Mapping")
+    mapping_df = pd.DataFrame(variable_names, columns=["Variable", "Feature Name"])
+    st.table(mapping_df)
+
 
 # Section: Feature Importance Plot
 with st.expander("📊 Feature Importance Plot", expanded=True):
