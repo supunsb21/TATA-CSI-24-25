@@ -54,7 +54,7 @@ with st.expander("📈 Model Evaluation", expanded=True):
     st.markdown(f'### R²: {r2 * 100:.2f}% Variation in Overall Evaluation Can Be Explained')
 
 # Model Equation 
-with st.expander("Model Equation", expanded=True):
+with st.expander("Model Equation: Elastic Net Regression", expanded=True):
     st.header('Model Equation')
     coefficients = model.coef_
     intercept = model.intercept_
