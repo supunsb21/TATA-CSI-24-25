@@ -43,35 +43,31 @@ with st.expander("🎯 Target Variable & Features", expanded=True):
     st.markdown(f"**Target Variable**: {target}")
     st.markdown(f"**Features**: {', '.join(features)}")
 
-# Section: Model Evaluation
-num_data_points = len(df)
-with st.expander("📈 Model Evaluation", expanded=True):
-    st.header(f'Model Evaluation: Elastic Net Regression')
-    mse = mean_squared_error(y, y_pred)
-    r2 = r2_score(y, y_pred)
-    st.markdown(f'### Number of Surveys: {num_data_points}')
-    st.markdown(f"### Mean Squared Error (MSE): {mse:.2f}")
-    st.markdown(f'### R²: {r2 * 100:.2f}% Variation in Overall Evaluation Can Be Explained')
-
 # Model Equation 
 with st.expander("Model Equation", expanded=True):
     st.header('Model Equation')
     coefficients = model.coef_
     intercept = model.intercept_
 
-    # Build LaTeX equation string with subscripted variables
-    equation_latex = f"y = {intercept:.2f}"
+    # Build LaTeX equation string with colors
+    equation_latex = f"y = \\textcolor{{white}}{{{intercept:.2f}}}"
     variable_names = [("y", "Target Variable")]
 
     for i, coef in enumerate(coefficients):
         sign = "+" if coef >= 0 else "-"
-        variable_name = f"X_{i+1}"  # Subscript format for LaTeX
-        display_name = f"X{i+1}"    # Plain format for table
+        coef_color = "blue" if coef >= 0 else "red"
+        variable_name = f"X_{{{i+1}}}"  # Subscript format for LaTeX
+        display_name = f"X{i+1}"        # Plain format for table
         variable_names.append((display_name, features[i]))
-        equation_latex += f" {sign} {abs(coef):.2f} {variable_name}"
+        equation_latex += f" {sign} \\textcolor{{{coef_color}}}{{{abs(coef):.2f}}} \\cdot \\textcolor{{green}}{{{variable_name}}}"
 
-    # Display LaTeX equation
+    # Display colored LaTeX equation
     st.latex(equation_latex)
+
+    # Display table mapping variable names to feature names
+    st.subheader("Variable Mapping")
+    mapping_df = pd.DataFrame(variable_names, columns=["Variable", "Feature Name"])
+    st.table(mapping_df)
 
     # Display table mapping variable names to feature names
     st.subheader("Variable Mapping")
