@@ -163,3 +163,29 @@ with st.expander("🔍 Predict from Custom CSI Values", expanded=True):
     st.markdown("### 📈 Predicted Overall Evaluation")
     st.metric(label="Predicted Score", value=f"{prediction:.2f}")
     st.markdown("This score reflects the expected overall customer satisfaction based on the CSI inputs.")
+
+
+    import streamlit as st
+
+# Add copyright at the bottom
+st.markdown(
+    """
+    <style>
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #071429;
+        color: #b4b8bf;
+        text-align: center;
+        padding: 10px;
+        font-size: 14px;
+    }
+    </style>
+    <div class="footer">
+        © 2025 DIMO Customer Experience. All rights reserved.
+    </div>
+    """,
+    unsafe_allow_html=True
+)
