@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 from sklearn.metrics import mean_squared_error, r2_score
 
 # Set page layout and style
-st.set_page_config(page_title="TATA Commercial CSI 24/25", page_icon="📊", layout="wide")
+st.set_page_config(page_title="CSI Analysis", page_icon="📊", layout="wide")
 
 # Apply a clean, minimal style for the app
 st.markdown("""
@@ -18,32 +18,25 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Load the dataset
-df = pd.read_csv("df_cleaned.csv")
+df = pd.read_csv("df_cleaned_new.csv")
 
 # Select target and features
-X = df.iloc[:, 0:7]
-y = df['Overall Evaluation']
+X = df.drop(columns=['Overall Evaluation'])
+y = df['Overall Evaluation']  
 target = 'Overall Evaluation'
 features = X.columns
 
-# Sidebar for model selection
-st.sidebar.title("Model Selection")
-model_choice = st.sidebar.selectbox('Choose Regression Model', ['Linear Regression', 'Elastic Net Regression'])
-
-# Load the selected model with error handling
-try:
-    if model_choice == 'Linear Regression':
-        model = joblib.load('LinearReg.joblib')
-    elif model_choice == 'Elastic Net Regression':
-        model = joblib.load('ElasticNet.joblib')
-except FileNotFoundError:
-    st.error(f"Model file for {model_choice} not found. Please check the path.")
-    st.stop()
+model = joblib.load('ElasticNet_new.joblib')
 
 # Predict with the model
 y_pred = model.predict(X)
 
-st.header('TATA Commercial CSI 2024/2025')
+st.markdown(
+    """
+    <h2 style='text-align: center;'>TATA Commercial CSI 2024/2025</h2>
+    """,
+    unsafe_allow_html=True
+)
 
 # Section: Dataset Preview
 with st.expander("📋 Preview Dataset", expanded=False):
@@ -58,12 +51,12 @@ with st.expander("🎯 Target Variable & Features", expanded=True):
 # Section: Model Evaluation
 num_data_points = len(df)
 with st.expander("📈 Model Evaluation", expanded=True):
-    st.header(f'Model Evaluation: {model_choice}')
+    st.header(f'Model Evaluation: Elastic Net Regression')
     mse = mean_squared_error(y, y_pred)
     r2 = r2_score(y, y_pred)
     st.markdown(f'### Number of Surveys: {num_data_points}')
     st.markdown(f"### Mean Squared Error (MSE): {mse:.2f}")
-    st.markdown(f'### R²: {r2 * 100:.2f}% Variation in Overall Evaluation Can Be Explained')
+    st.markdown(f'### R²: {r2 * 100:.2f}% Variation in Overall Evaluation Can Be Explained by This Model')
 
 # Model Equation 
 with st.expander("Model Equation", expanded=True):
@@ -71,17 +64,26 @@ with st.expander("Model Equation", expanded=True):
     coefficients = model.coef_
     intercept = model.intercept_
 
-    # Create the equation string with colored text for coefficients and feature names
-    equation_html = f'<p><strong>{target} = <span style="color: #FFFFFF;">{intercept:.2f}</span></strong>'
+    # Build LaTeX equation string with colors
+    equation_latex = f"y = \\textcolor{{purple}}{{{intercept:.2f}}}"
+    variable_names = [("y", "Overall Evaluation")]
 
     for i, coef in enumerate(coefficients):
-        coef_color = "#1E90FF" if coef >= 0 else "#FF4500"  # Blue for positive, red for negative coefficients
-        equation_html += f' <span style="color: {coef_color};">{"+" if coef >= 0 else "-"} {abs(coef):.2f}</span> * <span style="color: #32CD32;">{features[i]}</span>'
+        sign = "+" if coef >= 0 else "-"
+        coef_color = "blue" if coef >= 0 else "red"
+        variable_name = f"X_{{{i+1}}}"  # Subscript format for LaTeX
+        display_name = f"X{i+1}"        # Plain format for table
+        variable_names.append((display_name, features[i]))
+        equation_latex += f" {sign} \\textcolor{{{coef_color}}}{{{abs(coef):.2f}}} \\cdot \\textcolor{{green}}{{{variable_name}}}"
 
-    equation_html += '</p>'
+    # Display colored LaTeX equation
+    st.latex(equation_latex)
 
-    # Display the equation using HTML for better clarity and color formatting
-    st.markdown(equation_html, unsafe_allow_html=True)
+    # Display table mapping variable names to feature names
+    st.subheader("Variable Mapping")
+    mapping_df = pd.DataFrame(variable_names, columns=["Variable", "Feature Name"])
+    st.table(mapping_df)
+
 
 # Section: Feature Importance Plot
 with st.expander("📊 Feature Importance Plot", expanded=True):
@@ -134,17 +136,27 @@ with st.expander("🔍 Predict from Custom CSI Values", expanded=True):
     # Distribute feature inputs across two columns
     for i, feature in enumerate(features):
         with col1 if i % 2 == 0 else col2:
-            value = st.selectbox(
-                f"{feature}",
-                options=list(range(11)),
-                index=5,
-                key=f"user_input_{feature}"
-            )
+            if i == len(features) - 1:  # Last feature is binary
+                value = st.selectbox(
+                    f"{feature}",
+                    options=["Yes", "No"],
+                    index=1,
+                    key=f"user_input_{feature}"
+                )
+                value = 1 if value == "Yes" else 0  # Convert to binary
+            else:
+                value = st.selectbox(
+                    f"{feature}",
+                    options=list(range(11)),
+                    index=0,
+                    key=f"user_input_{feature}"
+                )
             user_input.append(value)
 
     # Predict using the model in real-time
     input_df = pd.DataFrame([user_input], columns=features)
     prediction = model.predict(input_df)[0]
+
 
     # Display prediction result with styling
     st.markdown("---")
@@ -152,3 +164,25 @@ with st.expander("🔍 Predict from Custom CSI Values", expanded=True):
     st.metric(label="Predicted Score", value=f"{prediction:.2f}")
     st.markdown("This score reflects the expected overall customer satisfaction based on the CSI inputs.")
 
+# Add copyright at the bottom
+st.markdown(
+    """
+    <style>
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #071429;
+        color: #b4b8bf;
+        text-align: center;
+        padding: 10px;
+        font-size: 14px;
+    }
+    </style>
+    <div class="footer">
+        © 2025 DIMO Customer Experience. All rights reserved.
+    </div>
+    """,
+    unsafe_allow_html=True
+)
