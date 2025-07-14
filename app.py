@@ -48,6 +48,16 @@ with st.expander("🎯 Target Variable & Features", expanded=True):
     st.markdown(f"**Target Variable**: {target}")
     st.markdown(f"**Features**: {', '.join(features)}")
 
+# Section: Model Evaluation
+num_data_points = len(df)
+with st.expander("📈 Model Evaluation", expanded=True):
+    st.header(f'Model Evaluation: Elastic Net Regression')
+    mse = mean_squared_error(y, y_pred)
+    r2 = r2_score(y, y_pred)
+    st.markdown(f'### Number of Surveys: {num_data_points}')
+    st.markdown(f"### Mean Squared Error (MSE): {mse:.2f}")
+    st.markdown(f'### R²: {r2 * 100:.2f}% Variation in Overall Evaluation Can Be Explained by This Model')
+
 # Model Equation 
 with st.expander("Model Equation", expanded=True):
     st.header('Model Equation')
@@ -55,7 +65,7 @@ with st.expander("Model Equation", expanded=True):
     intercept = model.intercept_
 
     # Build LaTeX equation string with colors
-    equation_latex = f"y = \\textcolor{{white}}{{{intercept:.2f}}}"
+    equation_latex = f"y = \\textcolor{{purple}}{{{intercept:.2f}}}"
     variable_names = [("y", "Overall Evaluation")]
 
     for i, coef in enumerate(coefficients):
